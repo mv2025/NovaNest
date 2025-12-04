@@ -1,11 +1,16 @@
+// server.js - NovaNest simple backend API (Node + Express)
+
 const express = require('express');
 const cors = require('cors');
 
 const app = express();
 const PORT = 4000;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
+
+// --- Sample in-memory data (no database needed for prototype) ---
 
 const residents = [
   { id: 1, name: 'Sarah', room: '101', role: 'resident', kWhToday: 3.1, points: 8 },
@@ -23,6 +28,7 @@ const alerts = [
   { id: 2, room: 'Room 3',  type: 'comfort', message: 'Window open, room cooling' },
 ];
 
+// Utility: calculate totals
 function calculateSummary() {
   const totalDeviceKWh = devices.reduce((sum, d) => sum + d.kWhToday, 0);
   const totalResidentKWh = residents.reduce((sum, r) => sum + r.kWhToday, 0);
@@ -37,14 +43,19 @@ function calculateSummary() {
   };
 }
 
+// --- Routes ---
+
+// Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'NovaNest-backend', time: new Date().toISOString() });
 });
 
+// Get all residents
 app.get('/api/residents', (req, res) => {
   res.json(residents);
 });
 
+// Get one resident by id
 app.get('/api/residents/:id', (req, res) => {
   const id = Number(req.params.id);
   const resident = residents.find(r => r.id === id);
@@ -54,19 +65,23 @@ app.get('/api/residents/:id', (req, res) => {
   res.json(resident);
 });
 
+// Get all devices
 app.get('/api/devices', (req, res) => {
   res.json(devices);
 });
 
+// Get alerts
 app.get('/api/alerts', (req, res) => {
   res.json(alerts);
 });
 
+// High-level facility summary
 app.get('/api/summary', (req, res) => {
   const summary = calculateSummary();
   res.json(summary);
 });
 
+// Start server
 app.listen(PORT, () => {
   console.log(`NovaNest backend running on http://localhost:${PORT}`);
 });
